@@ -47,6 +47,8 @@ def find_post(id):
     for items in my_posts:
         if str(items["id"]) == id:
             return items
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= "This post does not exist")
 
 # This API returns the post with a specific id to the user
 # @app.get("/posts/uid/{id}")
@@ -66,3 +68,11 @@ def load_post(id: str):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail="The post you are looking for is not found")   ## Handles the response code
     return("Check complete: ", post)
+
+
+# API to delete specific post
+@app.delete("/posts/delete/uid/{id}")
+def delete_post(id: str):
+    post = find_post(id)
+    my_posts.remove(post)
+    return my_posts
