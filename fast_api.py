@@ -1,5 +1,5 @@
 # Importing necessary libraries
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, status
 from fastapi.params import Body
 from pydantic import BaseModel
 from typing import Optional
@@ -50,7 +50,10 @@ def find_post(id):
 
 # This API returns the post with a specific id to the user
 @app.get("/posts/uid/{id}")
-def load_post(id: int):
-    print(id)
+def load_post(id: int, response: Response):
+    
     post = find_post(id)
+    if not post:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"message":"The post you are looking for is not found"}
     return("Check complete: ", post)
