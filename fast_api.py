@@ -45,7 +45,7 @@ def create_post(post: Post):
 # This function returns the post with a specific id
 def find_post(id):
     for items in my_posts:
-        if items["id"] == id:
+        if str(items["id"]) == id:
             return items
 
 # This API returns the post with a specific id to the user
@@ -60,8 +60,7 @@ def find_post(id):
 
 # Better way to build the same API as above
 @app.get("/posts/uid/{id}")
-def load_post(id: int):
-    
+def load_post(id: str):
     post = find_post(id)
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
