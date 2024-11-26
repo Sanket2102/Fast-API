@@ -35,7 +35,7 @@ def get_posts():
 
 
 # This API creates a post and store it in our local memory
-@app.post("/posts")
+@app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_post(post: Post):
     post = post.dict()
     post["id"] = (len(my_posts) + 1) 
