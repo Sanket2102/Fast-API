@@ -48,6 +48,11 @@ def find_post(id):
         if str(items["id"]) == id:
             return items
 
+def find_post_index(id):
+    for i,p in enumerate(my_posts):
+        if str(p["id"]) == id:
+            return i
+
 # This API returns the post with a specific id to the user
 # @app.get("/posts/uid/{id}")
 # def load_post(id: int, response: Response):
@@ -69,10 +74,24 @@ def load_post(id: str):
 
 
 # API to delete specific post
-@app.delete("/posts/delete/uid/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/posts/uid/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: str):
     post = find_post(id)
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail="The post you are looking for is not found")
     my_posts.remove(post)
+
+
+# API to update post
+@app.put("/posts/uid/{id}")
+def update_post(id: str, content: Post):
+    index = find_post_index(id)
+    if not index:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
+                            detail="The post you are looking for is not found")
+    dict = content.dict() 
+    dict["id"] = id      # Stores the id so that the information is not lost
+    my_posts[index] = dict
+    print(content)
+    return{"message":"The post was updated successfully", "post":content}
