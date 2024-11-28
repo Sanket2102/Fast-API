@@ -28,6 +28,11 @@ class Post(BaseModel):
     content: str
     published: bool = 1
 
+def find_post(id: int):
+    select_query = "SELECT * FROM posts where id = %s"
+    cursor.execute(select_query, (id,))
+    return cursor.fetchone()
+
 @app.get("/")
 def root():
     return {"message":"This is a Social Media platform"}
@@ -39,7 +44,7 @@ def view_posts():
     return posts
 
 @app.get("/posts/uid/{id}")
-def fetch_post(id: int):
+def fetch_post(id: str):
     select_query = "SELECT title, content from posts where id = %s"
 
     cursor.execute(select_query,(id,))
@@ -68,10 +73,8 @@ def create_post(post: Post):
 
 @app.delete("/posts/uid/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_posts(id:int):
-    select_query = "select id from posts where id = %s"
     delete_query = "DELETE FROM posts where id = %s"
-    cursor.execute(select_query, (id,))
-    post = cursor.fetchall()
+    post = find_post(id)
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No post found with the given id")
     cursor.execute(delete_query, (id,))
@@ -79,6 +82,10 @@ def delete_posts(id:int):
 
 @app.put("/posts/uid/{id}")
 def update_post(post:Post, id: int):
+    requested_post = find_post(id)
+    if not requested_post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No post found with the given id")
+    
     post = post.dict()
     update_query = "UPDATE posts set title = %s, content = %s, published = %s where id = %s" 
     updated_content = (post["title"],post["content"],post["published"], id)
