@@ -1,10 +1,16 @@
 # Importing necessary library
 import pymysql
-from fastapi import FastAPI, HTTPException, Response, status
+from fastapi import FastAPI, HTTPException, Response, status, Depends
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
+import time
+import models
+from database import engine, SessionLocal
+from sqlalchemy.orm import Session
 
+
+models.Base.metadata.create_all(bind=engine)
 # Load environment variables
 load_dotenv()
 
@@ -23,6 +29,13 @@ cursor = connection.cursor()
 # initializing our app
 app = FastAPI()
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 class Post(BaseModel):
     title: str
     content: str
@@ -36,6 +49,11 @@ def find_post(id: int):
 @app.get("/")
 def root():
     return {"message":"This is a Social Media platform"}
+
+@app.get("/sqlalchemy")
+def test_posts(db: Session = Depends(get_db)):
+    return {"status":"success"}
+
 
 @app.get("/posts")
 def view_posts():
