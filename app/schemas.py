@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 class PostBase(BaseModel):
     title: str
@@ -11,3 +11,10 @@ class PostCreate(PostBase):
 class Response(PostBase):
     class Config:
         from_attributes = True
+
+class UserBase(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserCreate(UserBase):
+    pass
