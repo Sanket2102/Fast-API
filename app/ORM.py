@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, Response, status, Depends
 import app.models as models,app.schemas as schemas
 from app.database import engine, get_db
 from sqlalchemy.orm import Session
+from typing import List
 
 # This creates the table in our Database
 models.Base.metadata.create_all(bind=engine)
@@ -15,7 +16,7 @@ app = FastAPI()
 def root():
     return {"message":"This is a Social Media platform"}
 
-@app.get("/sqlalchemy/posts")
+@app.get("/sqlalchemy/posts")#,response_model=List[schemas.Response])
 def view_posts(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
     return posts
@@ -56,3 +57,11 @@ def update_post(post:schemas.PostCreate, id: int, db: Session = Depends(get_db))
     db.commit()
 
     return post_query.first()
+
+@app.post("/users", status_code=status.HTTP_201_CREATED)
+def create_user(user: schemas.UserCreate, db:Session = Depends(get_db)):
+    new_user = models.User(**user.dict())
+    db.add(new_user)
+    db.commit()
+    return "Your account has been created successfully"
+
