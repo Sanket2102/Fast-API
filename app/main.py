@@ -1,9 +1,9 @@
 # Importing necessary library
 import pymysql
 from fastapi import FastAPI, HTTPException, Response, status
-from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
+import app.schemas as schemas
 
 # Load environment variables
 load_dotenv()
@@ -22,11 +22,6 @@ cursor = connection.cursor()
 
 # initializing our app
 app = FastAPI()
-
-class Post(BaseModel):
-    title: str
-    content: str
-    published: bool = 1
 
 def find_post(id: int):
     select_query = "SELECT * FROM posts where id = %s"
@@ -55,7 +50,7 @@ def fetch_post(id: str):
     return posts
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_post(post: Post):
+def create_post(post: schemas.PostCreate):
     post = post.dict()  # Convert the input Post object to a dictionary
     
     # Parameterized query for the INSERT operation
@@ -81,7 +76,7 @@ def delete_posts(id:int):
     connection.commit()
 
 @app.put("/posts/uid/{id}")
-def update_post(post:Post, id: int):
+def update_post(post:schemas.PostCreate, id: int):
     requested_post = find_post(id)
     if not requested_post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No post found with the given id")
@@ -91,8 +86,4 @@ def update_post(post:Post, id: int):
     updated_content = (post["title"],post["content"],post["published"], id)
     cursor.execute(update_query, updated_content)
     connection.commit()
-
-
-# Closing the connections
-# cursor.close()
-# connection.close()
+    return updated_content
