@@ -4,18 +4,16 @@ from app.database import get_db, engine
 from sqlalchemy.orm import Session
 from typing import List
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/posts"
+)
 
-@router.get("/")
-def root():
-    return {"message":"This is a Social Media platform"}
-
-@router.get("/posts")#,response_model=List[schemas.PostResponse])
+@router.get("/")#,response_model=List[schemas.PostResponse])
 def view_posts(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
     return posts
 
-@router.get("/posts/uid/{id}", response_model=schemas.PostResponse)
+@router.get("/uid/{id}", response_model=schemas.PostResponse)
 def fetch_post(id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == id).first()
 
@@ -23,7 +21,7 @@ def fetch_post(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No posts with the given id is found")
     return post
 
-@router.post("/posts", status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse)
 def create_post(post: schemas.PostCreate, db:Session = Depends(get_db)):
     new_post = models.Post(**post.dict())
     db.add(new_post)
@@ -32,7 +30,7 @@ def create_post(post: schemas.PostCreate, db:Session = Depends(get_db)):
 
     return new_post
 
-@router.delete("/posts/uid/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/uid/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_posts(id:int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == id)
     if not post.first():
@@ -40,7 +38,7 @@ def delete_posts(id:int, db: Session = Depends(get_db)):
     post.delete(synchronize_session=False)
     db.commit()
 
-@router.put("/posts/uid/{id}", response_model=schemas.PostResponse)
+@router.put("/uid/{id}", response_model=schemas.PostResponse)
 def update_post(post:schemas.PostCreate, id: int, db: Session = Depends(get_db)):
     post_query = db.query(models.Post).filter(models.Post.id == id)
     requested_post = post_query.first()
