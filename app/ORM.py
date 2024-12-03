@@ -4,7 +4,7 @@ import app.models as models,app.schemas as schemas, app.utils as utils
 from app.database import engine, get_db
 from sqlalchemy.orm import Session
 from typing import List
-from app.routers import post, user
+from app.routers import post, user, auth
 # from passlib.context import CryptContext
 
 # # Hashing algortihm to hash password before storing in database
@@ -19,6 +19,7 @@ app = FastAPI()
 
 app.include_router(post.router)
 app.include_router(user.router)
+app.include_router(auth.router)
 
 @app.get("/")
 def root():
