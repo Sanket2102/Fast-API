@@ -1,6 +1,6 @@
 # Importing necessary library
 from fastapi import FastAPI, HTTPException, Response, status, Depends
-import app.models as models,app.schemas as schemas, app.utils as utils
+import app.models as models
 from app.database import engine, get_db
 from sqlalchemy.orm import Session
 from typing import List
