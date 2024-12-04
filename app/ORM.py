@@ -1,14 +1,8 @@
 # Importing necessary library
-from fastapi import FastAPI, HTTPException, Response, status, Depends
+from fastapi import FastAPI
 import app.models as models
-from app.database import engine, get_db
-from sqlalchemy.orm import Session
-from typing import List
+from app.database import engine
 from app.routers import post, user, auth
-# from passlib.context import CryptContext
-
-# # Hashing algortihm to hash password before storing in database
-# pwd_context = CryptContext(schemas=["bcrypt"], deprecated='auto')
 
 # This creates the table in our Database
 models.Base.metadata.create_all(bind=engine)
