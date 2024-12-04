@@ -1,16 +1,19 @@
-from fastapi import FastAPI, Depends, HTTPException, status, APIRouter
+from fastapi import Depends, HTTPException, status, APIRouter
 import app.models as models, app.schemas as schemas, app.oauth2 as oauth2
-from app.database import get_db, engine
+from app.database import get_db
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 router = APIRouter(
     prefix="/posts",tags=["Posts"]
 )
 
 @router.get("/",response_model=List[schemas.PostResponse])
-def view_posts(db: Session = Depends(get_db)):
-    posts = db.query(models.Post).all()
+def view_posts(db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = ""):
+    posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
+
+    if not posts:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No posts found")
     return posts
 
 @router.get("/uid/{id}", response_model=schemas.PostResponse)
