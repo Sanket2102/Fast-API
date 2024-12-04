@@ -8,7 +8,7 @@ router = APIRouter(
     prefix="/posts",tags=["Posts"]
 )
 
-@router.get("/")#,response_model=List[schemas.PostResponse])
+@router.get("/",response_model=List[schemas.PostResponse])
 def view_posts(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
     return posts
