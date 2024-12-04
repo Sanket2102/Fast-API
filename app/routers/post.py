@@ -22,8 +22,7 @@ def fetch_post(id: int, db: Session = Depends(get_db)):
     return post
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse)
-def create_post(post: schemas.PostCreate, db:Session = Depends(get_db), user_id:int = Depends(oauth2.get_current_user)):
-    print(user_id)
+def create_post(post: schemas.PostCreate, db:Session = Depends(get_db), current_user:int = Depends(oauth2.get_current_user)):
     new_post = models.Post(**post.dict())
     db.add(new_post)
     db.commit()
@@ -32,7 +31,7 @@ def create_post(post: schemas.PostCreate, db:Session = Depends(get_db), user_id:
     return new_post
 
 @router.delete("/uid/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_posts(id:int, db: Session = Depends(get_db), user_id:int = Depends(oauth2.get_current_user)):
+def delete_posts(id:int, db: Session = Depends(get_db), current_user:int = Depends(oauth2.get_current_user)):
     post = db.query(models.Post).filter(models.Post.id == id)
     if not post.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No post found with the given id")
@@ -40,7 +39,7 @@ def delete_posts(id:int, db: Session = Depends(get_db), user_id:int = Depends(oa
     db.commit()
 
 @router.put("/uid/{id}", response_model=schemas.PostResponse)
-def update_post(post:schemas.PostCreate, id: int, db: Session = Depends(get_db), user_id:int = Depends(oauth2.get_current_user)):
+def update_post(post:schemas.PostCreate, id: int, db: Session = Depends(get_db), current_user = Depends(oauth2.get_current_user)):
     post_query = db.query(models.Post).filter(models.Post.id == id)
     requested_post = post_query.first()
     if not requested_post:
